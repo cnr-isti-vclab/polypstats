@@ -111,7 +111,7 @@ def main():
             f.write(mesh_name_var.get() + "\n")
             f.write(metashape_name_var.get() + "\n")
             subprocess.Popen([
-                "python", "minviewer.py",
+                "python", "polypstats.py",
                 main_path_var.get(),
                 imgs_path_var.get(),
                 masks_path_var.get(),
