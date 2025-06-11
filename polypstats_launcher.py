@@ -29,20 +29,28 @@ def main():
     mesh_name =  ''
     metashape_name = ''
     
-    with open("last.txt", "r") as f:
-        content = f.read()
-        print("Raw content:", repr(content))
+    try:
+        with open("last.txt", "r") as f:
+            content = f.read()
+            print("Raw content:", repr(content))
 
-        lines = content.splitlines()
-        print("lines:", lines)
-        if len(lines) >= 4:
-            main_path = lines[0]
-            imgs_path = lines[1]
-            masks_path = lines[2]
-            mesh_name = lines[3]
-            metashape_name = lines[4]
-        else:
-            print("last.txt does not contain enough lines.")
+            lines = content.splitlines()
+            print("lines:", lines)
+            if len(lines) >= 5:
+                main_path = lines[0]
+                imgs_path = lines[1]
+                masks_path = lines[2]
+                mesh_name = lines[3]
+                metashape_name = lines[4]
+            else:
+                print("last.txt does not contain enough lines.")
+    except FileNotFoundError:
+        print("last.txt not found. Using default empty paths.")
+        main_path = ""
+        imgs_path = ""
+        masks_path = ""
+        mesh_name = ""
+        metashape_name = ""
     
 
     # Show a widget with the selected paths
