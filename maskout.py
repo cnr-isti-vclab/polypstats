@@ -32,7 +32,6 @@ layout(std430, binding = 1) buffer bMasks {
 };
 
 
-
 uniform int uMaskSize;
 uniform mat4 uViewCam;              // camera view matrix
 uniform sampler2D uColorTexture;    // for each pixel of the image, the coordinates in parametric space
@@ -43,7 +42,6 @@ layout(binding = 5) uniform sampler2D uTriangleMap;  // for each pixel of the im
 
 
 // input/output image
-layout(binding = 0, r32ui) uniform uimage2D uNodePointer;  // for each triangle, the index to a node/mask that covers it
 
 layout(std430, binding = 2) buffer bCoverage {
     uint coverage_ssbo[]; // masks[i*sizemask+j] = onto which triangles the sample j of mask i falls
@@ -156,7 +154,7 @@ uniform sampler2D uTriangleMap;  // for each pixel of the image, to which triang
 uniform int uNMasks;
 
 // input/output image
-layout(binding = 0, r32ui) uniform uimage2D uNodePointer;  // for each triangle, the index to a node/mask that covers it
+//layout(binding = 0, r32ui) uniform uimage2D uNodePointer;  // for each triangle, the index to a node/mask that covers it
 
 layout(std430, binding = 2) buffer bCoverage {
     uint coverage_ssbo[]; // masks[i*sizemask+j] = onto which triangles the sample j of mask i falls

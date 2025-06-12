@@ -1151,7 +1151,7 @@ def segment_imgs():
     get_uvmap = False
 
     compute_bounding_boxes_per_camera()
-    os.chdir(os.path.join(app_path, 'detector'))
+    os.chdir(app_path)
     apply_yolo(imgs_path,masks_path)
     os.chdir(app_path)
 
@@ -1417,7 +1417,7 @@ def main():
 
     sensor  = metashape_loader.load_sensor_from_xml(metashape_file)
     global cameras 
-    cameras,chunk_rot,chunk_transl,chunk_scal = metashape_loader.load_cameras_from_xml("doc.xml")
+    cameras,chunk_rot,chunk_transl,chunk_scal = metashape_loader.load_cameras_from_xml(metashape_file)
     maskout.cameras = cameras
 
     chunk_rot = np.array(chunk_rot)

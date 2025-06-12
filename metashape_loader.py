@@ -177,95 +177,94 @@ class Camera:
         self.location_covariance = location_covariance
         self.orientation = orientation
 
-def load_cameras_from_xml(filepath):
+def load_cameras_from_xml(file_path):
     """
     Load cameras from a Metashape XML file and return chunk component transform details.
 
     :param filepath: Path to the XML file.
     :return: Tuple containing a list of Camera objects, the rotation matrix (3x3), and the scale value.
     """
-    try:
-        # Parse the XML file
-        tree = ET.parse(filepath)
-        root = tree.getroot()
+    with zipfile.ZipFile(file_path, 'r') as zip_ref:
+        with zip_ref.open("doc.xml") as file:
+    # Parse the XML file
+            tree = ET.parse(file)
+            root = tree.getroot()
 
-        # Find the first <component> in <chunk/components>
-        component_elem = root.find("./chunks/chunk/components/component")
-        if component_elem is None:
-            return [], None, None  # No component found
+    # Find the first <component> in <chunk/components>
+    component_elem = root.find("./chunks/chunk/components/component")
+    if component_elem is None:
+        return [], None, None  # No component found
 
-        # Extract transform data
-        transform_elem = component_elem.find("transform")
-        if transform_elem is not None:
-            rotation_elem = transform_elem.find("rotation")
-            if rotation_elem is not None:
-                rotation_matrix = [float(value) for value in rotation_elem.text.split()]
-            else:
-                rotation_matrix = None
-
-            translation_elem = transform_elem.find("translation")
-            if translation_elem is not None:
-                translation  = [float(value) for value in translation_elem.text.split()]
-            else:
-                translation  = None
-
-            scale_elem = transform_elem.find("scale")
-            scale_value = float(scale_elem.text.split()[0]) if scale_elem is not None else None
+    # Extract transform data
+    transform_elem = component_elem.find("transform")
+    if transform_elem is not None:
+        rotation_elem = transform_elem.find("rotation")
+        if rotation_elem is not None:
+            rotation_matrix = [float(value) for value in rotation_elem.text.split()]
         else:
             rotation_matrix = None
-            scale_value = None
 
-        # Find the <cameras> section
-        cameras_section = root.find("./chunks/chunk/cameras")
-        if cameras_section is None:
-            return [], rotation_matrix, scale_value  # No cameras found
+        translation_elem = transform_elem.find("translation")
+        if translation_elem is not None:
+            translation  = [float(value) for value in translation_elem.text.split()]
+        else:
+            translation  = None
 
-        cameras = []
+        scale_elem = transform_elem.find("scale")
+        scale_value = float(scale_elem.text.split()[0]) if scale_elem is not None else None
+    else:
+        rotation_matrix = None
+        scale_value = None
 
-        # Iterate through each <camera> element
-        for camera_elem in cameras_section.findall("camera"):
-            camera_id = int(camera_elem.get("id")) if camera_elem.get("id") else None
-            sensor_id = int(camera_elem.get("sensor_id")) if camera_elem.get("sensor_id") else None
-            component_id = int(camera_elem.get("component_id")) if camera_elem.get("component_id") else None
-            label = camera_elem.get("label") if camera_elem.get("label") else None
-            enabled = camera_elem.get("enabled") == "true" if camera_elem.get("enabled") else None
+    # Find the <cameras> section
+    cameras_section = root.find("./chunks/chunk/cameras")
+    if cameras_section is None:
+        return [], rotation_matrix, scale_value  # No cameras found
 
-            if(component_id != None):
-                # Parse transform (space-separated string to list of floats)
-                transform = [
-                    float(value) for value in camera_elem.findtext("transform", "").split()
-                ]
+    cameras = []
 
-                # Parse rotation_covariance (if exists)
-                rotation_covariance = [
-                    float(value)
-                    for value in camera_elem.findtext("rotation_covariance", "").split()
-                ]
+    # Iterate through each <camera> element
+    for camera_elem in cameras_section.findall("camera"):
+        camera_id = int(camera_elem.get("id")) if camera_elem.get("id") else None
+        sensor_id = int(camera_elem.get("sensor_id")) if camera_elem.get("sensor_id") else None
+        component_id = int(camera_elem.get("component_id")) if camera_elem.get("component_id") else None
+        label = camera_elem.get("label") if camera_elem.get("label") else None
+        enabled = camera_elem.get("enabled") == "true" if camera_elem.get("enabled") else None
 
-                # Parse location_covariance (if exists)
-                location_covariance = [
-                    float(value)
-                    for value in camera_elem.findtext("location_covariance", "").split()
-                ]
+        if(component_id != None):
+            # Parse transform (space-separated string to list of floats)
+            transform = [
+                float(value) for value in camera_elem.findtext("transform", "").split()
+            ]
 
-                # Parse orientation
-                orientation = int(camera_elem.findtext("orientation", "0"))
+            # Parse rotation_covariance (if exists)
+            rotation_covariance = [
+                float(value)
+                for value in camera_elem.findtext("rotation_covariance", "").split()
+            ]
 
-                # Create Camera object
-                camera = Camera(
-                    id=camera_id,
-                    sensor_id=sensor_id,
-                    component_id=component_id,
-                    label=label,
-                    enabled=enabled,
-                    transform=transform,
-                    rotation_covariance=rotation_covariance,
-                    location_covariance=location_covariance,
-                    orientation=orientation,
-                )
-                cameras.append(camera)
+            # Parse location_covariance (if exists)
+            location_covariance = [
+                float(value)
+                for value in camera_elem.findtext("location_covariance", "").split()
+            ]
 
-        return cameras, rotation_matrix, translation, scale_value
-    except (ET.ParseError, FileNotFoundError) as e:
-        print(f"Error loading file: {e}")
-        return [], None, None
+            # Parse orientation
+            orientation = int(camera_elem.findtext("orientation", "0"))
+
+            # Create Camera object
+            camera = Camera(
+                id=camera_id,
+                sensor_id=sensor_id,
+                component_id=component_id,
+                label=label,
+                enabled=enabled,
+                transform=transform,
+                rotation_covariance=rotation_covariance,
+                location_covariance=location_covariance,
+                orientation=orientation,
+            )
+            cameras.append(camera)
+
+    return cameras, rotation_matrix, translation, scale_value
+
