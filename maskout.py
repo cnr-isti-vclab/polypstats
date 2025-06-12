@@ -33,12 +33,12 @@ layout(std430, binding = 1) buffer bMasks {
 
 
 uniform int uMaskSize;
-uniform mat4 uViewCam;              // camera view matrix
-uniform sampler2D uColorTexture;    // for each pixel of the image, the coordinates in parametric space
-uniform float uRangeThreshold; // threshold for the range of the mask
+uniform mat4 uViewCam;                                  // camera view matrix
+layout(binding = 12)  uniform sampler2D uColorTexture;   // for each pixel of the image, the coordinates in parametric space
+uniform float uRangeThreshold;                          // threshold for the range of the mask
 
 
-layout(binding = 5) uniform sampler2D uTriangleMap;  // for each pixel of the image, to which triangle it belongs
+layout(binding = 13) uniform sampler2D uTriangleMap;  // for each pixel of the image, to which triangle it belongs
 
 
 // input/output image
@@ -150,11 +150,9 @@ layout(std430, binding = 1) buffer bMasks {
 uniform int uMaskSize;
 uniform mat4 uViewCam;              // camera view matrix
 
-uniform sampler2D uTriangleMap;  // for each pixel of the image, to which triangle it belongs
+layout(binding = 13) uniform sampler2D uTriangleMap;  // for each pixel of the image, to which triangle it belongs
 uniform int uNMasks;
 
-// input/output image
-//layout(binding = 0, r32ui) uniform uimage2D uNodePointer;  // for each triangle, the index to a node/mask that covers it
 
 layout(std430, binding = 2) buffer bCoverage {
     uint coverage_ssbo[]; // masks[i*sizemask+j] = onto which triangles the sample j of mask i falls
@@ -245,7 +243,7 @@ def setup_cshader( ):
     program_mask = cshader(masking_shader_str)
     range_shader = cshader(range_shader_str)
 
-    glActiveTexture(GL_TEXTURE5)
+    glActiveTexture(GL_TEXTURE13)
     glBindTexture(GL_TEXTURE_2D, triangle_map_texture)
 
     # to do it once
@@ -531,8 +529,8 @@ def compute_range(mks):
     glUseProgram(range_shader.program)
 
     glUniform1i(range_shader.uni("uMaskSize"), max_mask_size)
-    glUniform1i(range_shader.uni("uColorTexture"), 0)
-    glUniform1i(range_shader.uni("uTriangleMap"), 5)
+   # glUniform1i(range_shader.uni("uColorTexture"), 12)
+   # glUniform1i(range_shader.uni("uTriangleMap"), 13)
     glUniform1i(range_shader.uni("uNMasks"),NMASKS)
 
     glUniformMatrix4fv(range_shader.uni("uViewCam"), 1, GL_FALSE, glm.value_ptr(current_camera_matrix))
@@ -634,10 +632,10 @@ def process_masks_GPU(mks,range_threshold = 10.0):
         curr_node_id += 1
     del m
 
-    glActiveTexture(GL_TEXTURE0)
+    glActiveTexture(GL_TEXTURE12)
     glBindTexture(GL_TEXTURE_2D, texture_IMG_id)
 
-    glActiveTexture(GL_TEXTURE5)
+    glActiveTexture(GL_TEXTURE13)
     glBindTexture(GL_TEXTURE_2D, triangle_map_texture)
 
     #pass the index to the masks
@@ -677,7 +675,7 @@ def process_masks_GPU(mks,range_threshold = 10.0):
     glUseProgram(program_mask.program)
 
     glUniform1i(program_mask.uni("uMaskSize"), max_mask_size)
-    glUniform1i(program_mask.uni("uColorTexture"), 0)
+   # glUniform1i(program_mask.uni("uColorTexture"), 12)
     glUniformMatrix4fv(program_mask.uni("uViewCam"), 1, GL_FALSE, glm.value_ptr(current_camera_matrix))
     glUniform1f(program_mask.uni("uRangeThreshold"), range_threshold)
     #print("Current view matrix:\n", np.array(current_camera_matrix))
