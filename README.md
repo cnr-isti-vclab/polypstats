@@ -1,5 +1,6 @@
 # polypstats
-# to install all required modules run
+
+#to install all required modules run
 pip install -r requirements.txt
 
 #launch polypstats_laungher.py to select the paths
