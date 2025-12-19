@@ -222,8 +222,10 @@ def show_fluo_plot(glob = False):
     plt.xlabel('FLUO Values')
     plt.ylabel('Frequency')
     # Select data and title based on glob flag
+    fluo_image_base_name = cameras_FLUO[id_camera_fluo].label.split('_')[0]
     data = all_values_fluo if glob else mask.values_fluo
-    title = 'Histogram of all FLUO Values' if glob else f'Histogram of FLUO Values in mask - {mask.filename}'
+    title = 'Histogram of all FLUO Values' if glob else f'Histogram of FLUO Values in mask - {mask.filename}\n projected on fluo img {fluo_image_base_name}'
+
     percentiles = np.percentile(data, pctl)
     
     # Create histogram
@@ -1070,6 +1072,7 @@ def fluo_stats(th):
         mask.n_pixels_above_th = np.sum(mask.values_fluo >= th)
         mask.percentile_above_th = (mask.n_pixels_above_th / len(mask.values_fluo)) * 100.0
         mask.values_fluo = mask.values_fluo[mask.values_fluo >= th]
+        mask.avg_fluo_above_th = np.mean(mask.values_fluo) if len(mask.values_fluo) > 0 else 0.0
         all_values_fluo.extend(mask.values_fluo.tolist())
 
 
@@ -1524,12 +1527,12 @@ def export_stats():
 
         if FLUO:
             entry.update({
-                "avg_fluo": pol.avg_fluo[0],
-               # "avg_fluo G": pol.avg_fluo[1],
-               # "avg_fluo B": pol.avg_fluo[2],
-               "n_pixels_above_th": maskout.all_masks.nodes[pol.id_mask].mask.n_pixels_above_th,
-               "n_pixels_total": maskout.all_masks.nodes[pol.id_mask].mask.ones
-            })
+                            "avg_fluo": int(maskout.all_masks.nodes[pol.id_mask].mask.avg_fluo_above_th),
+                           # "avg_fluo G": pol.avg_fluo[1],
+                           # "avg_fluo B": pol.avg_fluo[2],
+                           "n_pixels_above_th": int(maskout.all_masks.nodes[pol.id_mask].mask.n_pixels_above_th),
+                           "n_pixels_total": int(maskout.all_masks.nodes[pol.id_mask].mask.ones)
+                        })
 
         data.append(entry)
     # Create a DataFrame and write to Excel        
