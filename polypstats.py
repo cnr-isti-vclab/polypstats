@@ -1269,10 +1269,11 @@ def neighbor_FLUO_cameras(id_cam_rgb):
     min_dist = float('inf')
     nearest_idx = -1
     for idx, cam in enumerate(cameras_FLUO):
-            dist = camera_distance(id_cam_rgb, idx)
-            if dist < min_dist:
-                min_dist = dist
-                nearest_idx = idx
+            if cam.transform != []:
+                dist = camera_distance(id_cam_rgb, idx)
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest_idx = idx
     return nearest_idx
 
 
