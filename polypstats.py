@@ -2107,17 +2107,17 @@ def main():
                 imgui.dummy(0.0, 20.0)
                 imgui.text("______________ Visualize process ____________")
                
-                if(imgui.button("project masks")):
-                    reset_display_image()
-                    if(i_toload < len(masks_filenames)-1 and n_masks > 0 ):
-                        process_masks(n_masks)
-                        refresh_domain()
-
-                if(imgui.button("count corallites")):
-                    count_polyps()
-                    maskout.clear_domain()
-                    for comp in maskout.all_masks.connected_components:
-                        maskout.color_the_domain(maskout.all_masks.nodes[comp.best_node].mask, comp.v_color)
+#                if(imgui.button("project masks")):
+#                    reset_display_image()
+#                    if(i_toload < len(masks_filenames)-1 and n_masks > 0 ):
+#                        process_masks(n_masks)
+#                        refresh_domain()
+#
+#                if(imgui.button("count corallites")):
+#                    count_polyps()
+#                    maskout.clear_domain()
+#                    for comp in maskout.all_masks.connected_components:
+#                        maskout.color_the_domain(maskout.all_masks.nodes[comp.best_node].mask, comp.v_color)
 
 
 
@@ -2147,7 +2147,8 @@ def main():
 
 
 
-                changed_cov_thr, cov_thr = imgui.input_float("thr cov ",cov_thr)
+#                changed_cov_thr, cov_thr = imgui.input_float("thr cov ",cov_thr)
+                changed_cov_thr = False
                 if changed_cov_thr:
                     changed_i_node = True
 
@@ -2208,23 +2209,23 @@ def main():
 
                 imgui.text_ansi(f"counted polyps: {len(maskout.all_masks.connected_components)}")
 
-                changed_i_comp, id_comp = imgui.input_int( "id shown comp", id_comp,step=1)
-                if(changed_i_comp):
-                    show_all_comps = False
-                    if(id_comp > len(maskout.all_masks.connected_components)-1 ):
-                        id_comp = len(maskout.all_masks.connected_components)-1
-                    if(id_comp < 0):
-                        id_comp = 0
-                    print(f"show comp {id_comp}: best {maskout.all_masks.connected_components[id_comp].best_node} nodes: {maskout.all_masks.connected_components[id_comp]}")
+#                changed_i_comp, id_comp = imgui.input_int( "id shown comp", id_comp,step=1)
+#                if(changed_i_comp):
+#                    show_all_comps = False
+#                    if(id_comp > len(maskout.all_masks.connected_components)-1 ):
+#                        id_comp = len(maskout.all_masks.connected_components)-1
+#                    if(id_comp < 0):
+#                        id_comp = 0
+#                    print(f"show comp {id_comp}: best {maskout.all_masks.connected_components[id_comp].best_node} nodes: {maskout.all_masks.connected_components[id_comp]}")#
 
-                    maskout.clear_domain()
+#                    maskout.clear_domain()
                     #maskout.color_connected_component(id_comp)
-                    comp = maskout.all_masks.connected_components[id_comp]
-                    maskout.color_the_domain(maskout.all_masks.nodes[comp.best_node].mask, comp.v_color,cov_thr)
+#                    comp = maskout.all_masks.connected_components[id_comp]
+#                    maskout.color_the_domain(maskout.all_masks.nodes[comp.best_node].mask, comp.v_color,cov_thr)
 
                     #first_mask = maskout.all_masks.connected_components[id_comp][0]
                     #metrics.compute_metrics(maskout.all_masks.nodes[first_mask].mask.img_data)
-                    refresh_domain()
+ #                   refresh_domain()
                 
                 if len(maskout.all_masks.connected_components) > 0 :
                     imgui.text_ansi(f"node: {maskout.all_masks.connected_components[id_comp].best_node}")
