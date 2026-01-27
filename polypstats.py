@@ -1068,12 +1068,13 @@ def fluo_stats(th):
 
     all_values_fluo = []
     for component in maskout.all_masks.connected_components:
-        mask = maskout.all_masks.nodes[component.best_node].mask
-        mask.n_pixels_above_th = np.sum(mask.values_fluo >= th)
-        mask.percentile_above_th = (mask.n_pixels_above_th / len(mask.values_fluo)) * 100.0
-        mask.values_fluo = mask.values_fluo[mask.values_fluo >= th]
-        mask.avg_fluo_above_th = np.mean(mask.values_fluo) if len(mask.values_fluo) > 0 else 0.0
-        all_values_fluo.extend(mask.values_fluo.tolist())
+        if not maskout.all_masks.nodes[component.best_node].mask.fluo_ignored:
+            mask = maskout.all_masks.nodes[component.best_node].mask
+            mask.n_pixels_above_th = np.sum(mask.values_fluo >= th)
+            mask.percentile_above_th = (mask.n_pixels_above_th / len(mask.values_fluo)) * 100.0
+            mask.values_fluo = mask.values_fluo[mask.values_fluo >= th]
+            mask.avg_fluo_above_th = np.mean(mask.values_fluo) if len(mask.values_fluo) > 0 else 0.0
+            all_values_fluo.extend(mask.values_fluo.tolist())
 
 
 
@@ -1527,13 +1528,23 @@ def export_stats():
         }
 
         if FLUO:
-            entry.update({
-                            "avg_fluo": int(maskout.all_masks.nodes[pol.id_mask].mask.avg_fluo_above_th),
-                           # "avg_fluo G": pol.avg_fluo[1],
-                           # "avg_fluo B": pol.avg_fluo[2],
-                           "n_pixels_above_th": int(maskout.all_masks.nodes[pol.id_mask].mask.n_pixels_above_th),
-                           "n_pixels_total": int(maskout.all_masks.nodes[pol.id_mask].mask.ones)
+            ignored = maskout.all_masks.nodes[pol.id_mask].mask.fluo_ignored    
+            if ignored:
+                entry.update({
+                            "avg_fluo": "",
+                           # "avg_fluo G": -1,
+                           # "avg_fluo B": -1,
+                           "n_pixels_above_th": "",
+                           "n_pixels_total": ""
                         })
+            else:
+                entry.update({
+                                "avg_fluo": int(maskout.all_masks.nodes[pol.id_mask].mask.avg_fluo_above_th),
+                            # "avg_fluo G": pol.avg_fluo[1],
+                            # "avg_fluo B": pol.avg_fluo[2],
+                            "n_pixels_above_th": int(maskout.all_masks.nodes[pol.id_mask].mask.n_pixels_above_th),
+                            "n_pixels_total": int(maskout.all_masks.nodes[pol.id_mask].mask.ones)
+                            })
 
         data.append(entry)
     # Create a DataFrame and write to Excel        
@@ -2004,6 +2015,7 @@ def main():
     recompute_fluo = False 
     trig_show_fluo_plot = False
     trig_show_fluo_plot_glob = False
+    ignore_mask = False
 
 
     while True:    
@@ -2128,9 +2140,12 @@ def main():
 
                 
                 changed_i_node, id_node = imgui.input_int( "id shown  mask", id_node,step=1)
-                # Add a small color box for the current mask color
-                # Show color button only if avg_col attribute exists
-               
+                
+                if len(maskout.all_masks.nodes) > 0  and id_node < len(maskout.all_masks.nodes):    
+                    imgui.same_line()
+                    _,maskout.all_masks.nodes[id_node].mask.fluo_ignored = imgui.checkbox("ignore mask", maskout.all_masks.nodes[id_node].mask.fluo_ignored)
+
+
 
                 changed_cov_thr, cov_thr = imgui.input_float("thr cov ",cov_thr)
                 if changed_cov_thr:

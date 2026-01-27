@@ -447,6 +447,7 @@ class mask:
             self.triangles = []
             self.bbox = Box3()
             self.id_fluo_mask = None
+            self.fluo_ignored = False
 
     
 class node:
