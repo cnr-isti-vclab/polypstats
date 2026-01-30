@@ -2016,7 +2016,7 @@ def main():
     trig_show_fluo_plot = False
     trig_show_fluo_plot_glob = False
     ignore_mask = False
-
+    id_camera_fluo = 0
 
     while True:    
         time_delta = clock.tick(60)/1000.0 
@@ -2249,6 +2249,8 @@ def main():
                 if FLUO:
                     imgui.dummy(0.0, 20.0)
                     imgui.text("______________ FLUO part ____________")
+                    imgui.text_ansi(f"current camera id: {id_camera_fluo}")
+                    imgui.text_ansi(f"Curr FLUO image {cameras_FLUO[id_camera_fluo].label}")
                     changed, show_fluo_camera = imgui.checkbox("Show FLUO cameras", show_fluo_camera)
                     changed, show_mask_fluo = imgui.checkbox("Show masks projection on fluo", show_mask_fluo)
                     changed_fluo_thr, fluo_thr = imgui.input_int("FLUO threshold", fluo_thr, step=1000)
